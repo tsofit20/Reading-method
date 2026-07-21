@@ -29,53 +29,67 @@
     color: var(--text);
     font-family: 'Heebo', sans-serif;
     min-height:100vh;
-    display:flex;
-    align-items:flex-start;
-    justify-content:center;
-    padding: 2rem 1rem;
+    padding: 0;
   }
-  .wrap{ max-width: 640px; width:100%; }
-  h1{ font-size: 20px; text-align:center; margin-bottom:1.5rem; font-weight:700; }
+  .wrap{ max-width: 780px; width:100%; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; padding: 2.5rem 1.5rem 3rem; }
+  h1{ font-size: 22px; text-align:center; margin: 0 0 2rem; font-weight:700; letter-spacing:0.2px; }
   button{
     font-family:inherit;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 12px;
     color: var(--text);
     cursor:pointer;
-    padding: 8px 14px;
+    padding: 10px 18px;
+    font-size:15px;
   }
   button:hover{ background: var(--surface-2); }
   button:disabled{ opacity:0.5; cursor:default; }
-  .btn-accent{ border: 2px solid var(--accent); color: var(--accent); font-weight:500; }
-  .btn-success{ border: 2px solid var(--success); color: var(--success); font-weight:500; }
+  .btn-accent{ border: 2px solid var(--accent); color: var(--accent); font-weight:600; }
+  .btn-success{ border: 2px solid var(--success); color: var(--success); font-weight:600; }
   input[type=text]{
     font-family:inherit;
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 6px 10px;
-    font-size: 13px;
-  }
-  #settingsPanel{ display:none; background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem; margin-bottom:1.5rem; }
-  #progress{ text-align:center; font-size:13px; color: var(--text-muted); margin-bottom:1rem; }
-  .writing-box{
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius:16px;
-    padding: 2.5rem 1rem;
-    margin-bottom:1rem;
-    min-height:100px;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 22px;
     text-align:center;
   }
-  .writing-box .word{ font-size:44px; letter-spacing:1px; min-height:56px; }
-  .status-line{ min-height:24px; margin-bottom:1rem; text-align:center; font-size:14px; color: var(--text-muted); }
+  #settingsPanel{ display:none; background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem; margin-bottom:1.5rem; }
+  #progress{ text-align:center; font-size:14px; color: var(--text-muted); margin-bottom:0.5rem; letter-spacing:0.3px; }
+  .main-area{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .writing-box{
+    padding: 1rem 1rem 0;
+    margin-bottom:1.5rem;
+    min-height:140px;
+    text-align:center;
+  }
+  .writing-box .word{
+    font-size:64px;
+    letter-spacing:1.5px;
+    min-height:76px;
+    display:inline-block;
+    border-bottom: 2px solid var(--border);
+    padding: 0 1.5rem 1rem;
+  }
+  .status-line{ min-height:26px; margin-bottom:1.5rem; text-align:center; font-size:16px; color: var(--text-muted); }
   .status-listening{ color: var(--accent); }
-  .status-success{ color: var(--success); font-size:16px; }
-  .controls-row{ display:flex; justify-content:center; gap:8px; margin-bottom:1rem; flex-wrap:wrap; }
-  .controls-row button{ font-size:12px; padding:5px 10px; }
+  .status-success{ color: var(--success); font-size:18px; }
+  .controls-row{ display:flex; justify-content:center; gap:8px; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .controls-row button{ font-size:13px; padding:6px 12px; }
   .active-speed{ border:2px solid var(--accent); color: var(--accent); }
   .parent-row{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
-  .note{ font-size:12px; color: var(--text-muted); text-align:center; margin-top:1rem; }
+  .note{ font-size:13px; color: var(--text-muted); text-align:center; margin-top:1rem; }
+  .step-dots{ display:flex; justify-content:center; gap:10px; margin-bottom:2rem; }
+  .step-dot{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; border:1px solid var(--border); color: var(--text-muted); background: var(--surface); }
+  .step-dot.active{ border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+  .step-dot.done{ border-color: var(--success); color:#fff; background: var(--success); }
+  .step-title{ text-align:center; font-size:18px; font-weight:600; margin-bottom:0.75rem; }
+  .step-body{ text-align:center; font-size:15px; color: var(--text-muted); margin-bottom:1.5rem; }
+  .covered-card{ background: var(--surface-2); border:2px dashed var(--border); border-radius:16px; padding: 2.5rem 1rem; text-align:center; font-size:22px; color: var(--text-muted); margin-bottom:1.5rem; }
+  .choice-row{ display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:1rem; }
+  .choice-card{ background: var(--surface); border:1px solid var(--border); border-radius:14px; padding: 1.5rem 2rem; cursor:pointer; font-size:16px; font-weight:500; min-width:160px; }
+  .choice-card:hover{ background: var(--surface-2); }
 </style>
 </head>
 <body>
@@ -86,11 +100,7 @@
   </div>
   <div id="settingsPanel"></div>
   <div id="progress"></div>
-  <div id="app"></div>
-  <div style="margin-top:2rem;">
-    <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">יומן דיבאג (למעקב טכני):</div>
-    <pre id="debugBox" style="background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:10px; font-size:11px; max-height:180px; overflow-y:auto; white-space:pre-wrap; text-align:right; direction:rtl; margin:0;"></pre>
-  </div>
+  <div id="app" class="main-area"></div>
 </div>
 
 <script>
@@ -132,8 +142,10 @@ const AUDIO_MANIFEST = [
   {key:'word_shel', label:'המילה: שֶׁל'},
   {key:'word_rami', label:'המילה: רָמִי'},
   {key:'word_gina', label:'המילה: גִּנָּה'},
-  {key:'msg_instr_write', label:'הוראת פתיחה: "עכשיו נכתוב ונקרא ביחד. תקראו כל מילה כשהיא נכתבת"'},
-  {key:'msg_write_done', label:'עידוד סיום: "כל הכבוד! קראת את כל המשפטים לבד"'}
+  {key:'msg_instr_write', label:'הוראת פתיחה לקריאה: "עכשיו נכתוב ונקרא ביחד. תקראו כל מילה כשהיא נכתבת"'},
+  {key:'msg_write_done', label:'עידוד סיום קריאה: "כל הכבוד! קראת את כל המשפטים לבד"'},
+  {key:'msg_instr_copy', label:'הוראת פתיחה להעתקה: "עכשיו נעתיק את המשפטים. תקראו, תסתכלו היטב, תכסו, תכתבו ותבדקו"'},
+  {key:'msg_copy_done', label:'עידוד סיום כללי: "כל הכבוד! סיימת את כל השיעור"'}
 ];
 
 let audioUrls = {};
@@ -152,6 +164,11 @@ let pace = 1100;
 let revealPaused = false;
 let skipRequested = false;
 let currentSyllableText = '';
+let copyIdx = 0;
+let copyStep = 1;
+let writeMethod = null;
+let typedValue = '';
+let copyResolve = null;
 
 function getCtx(){
   if(!actx){ actx = new (window.AudioContext || window.webkitAudioContext)(); }
@@ -390,7 +407,13 @@ function wireSpeedControls(){
 function renderApp(){
   const app = document.getElementById('app');
   const progEl = document.getElementById('progress');
-  progEl.textContent = status==='notStarted' ? '' : `משפט ${sentIdx+1} מתוך ${sentences.length}`;
+
+  if(status === 'copying'){
+    renderCopyPhase();
+    return;
+  }
+
+  progEl.textContent = (status==='notStarted' || status==='copyingDone') ? '' : `משפט ${sentIdx+1} מתוך ${sentences.length} - קריאה`;
 
   if(status === 'notStarted'){
     app.innerHTML = `
@@ -403,13 +426,17 @@ function renderApp(){
     return;
   }
 
-  if(status === 'done'){
+  if(status === 'copyingDone'){
     app.innerHTML = `
       <div style="text-align:center;">
-        <div style="font-size:20px; margin-bottom:1rem; color:var(--success);">✓ כל הכבוד! קראת את כל המשפטים לבד</div>
+        <div style="font-size:24px; margin-bottom:1rem; color:var(--success);">✓ כל הכבוד! סיימת את כל השיעור</div>
         <button id="restart" class="btn-accent">התחל מחדש</button>
       </div>`;
-    document.getElementById('restart').onclick = ()=>{ sentIdx=0; currentWordIndex=0; builtWords=[]; currentReveal=''; status='notStarted'; renderApp(); };
+    document.getElementById('restart').onclick = ()=>{
+      sentIdx=0; currentWordIndex=0; builtWords=[]; currentReveal='';
+      copyIdx=0; copyStep=1; writeMethod=null; typedValue='';
+      status='notStarted'; renderApp();
+    };
     return;
   }
 
@@ -447,6 +474,156 @@ function renderApp(){
     document.getElementById('retryBtn').onclick = ()=>{ if(parentDecisionResolve) parentDecisionResolve('retry'); };
   }
 }
+
+function renderCopyPhase(){
+  const app = document.getElementById('app');
+  const progEl = document.getElementById('progress');
+  progEl.textContent = `משפט ${copyIdx+1} מתוך ${sentences.length} - העתקה`;
+
+  const sentObj = sentences[copyIdx];
+  const fullText = sentObj.ids.map(wordText).join(' ');
+  const stepLabels = ['קריאה','צילום','כיסוי','כתיבה','בדיקה'];
+
+  const dots = `<div class="step-dots">${stepLabels.map((l,i)=>{
+    const n = i+1;
+    const cls = n<copyStep ? 'done' : (n===copyStep ? 'active' : '');
+    return `<div class="step-dot ${cls}" title="${l}">${n}</div>`;
+  }).join('')}</div>`;
+
+  let body = '';
+
+  if(copyStep === 1){
+    body = `
+      <div class="step-title">שלב 1: קריאת המשפט</div>
+      <div class="writing-box"><div class="word">${fullText}</div></div>
+      <div class="step-body">קראו את המשפט בקול</div>
+      <div class="parent-row">
+        <button id="playSent">🔊 השמיעו</button>
+        <button id="nextStep" class="btn-accent">קראתי - להמשיך</button>
+      </div>`;
+  } else if(copyStep === 2){
+    body = `
+      <div class="step-title">שלב 2: צילום המשפט</div>
+      <div class="writing-box"><div class="word">${fullText}</div></div>
+      <div class="step-body">הסתכלו היטב על המשפט ונסו לזכור בדיוק איך הוא נראה</div>
+      <div class="parent-row">
+        <button id="nextStep" class="btn-accent">אני מוכן/ה להמשיך</button>
+      </div>`;
+  } else if(copyStep === 3){
+    body = `
+      <div class="step-title">שלב 3: כיסוי</div>
+      <div class="covered-card">🙈 המשפט מכוסה</div>
+      <div class="step-body">עכשיו נסו לראות בדמיון איך המשפט כתוב, כאילו הוא עדיין מול העיניים</div>
+      <div class="parent-row">
+        <button id="nextStep" class="btn-accent">המשך לכתיבה</button>
+      </div>`;
+  } else if(copyStep === 4){
+    if(!writeMethod){
+      body = `
+        <div class="step-title">שלב 4: כתיבה</div>
+        <div class="step-body">איך תרצו לכתוב את המשפט?</div>
+        <div class="choice-row">
+          <div class="choice-card" id="chooseType">⌨️<br>הקלדה במחשב</div>
+          <div class="choice-card" id="chooseWrite">✏️<br>כתיבה במחברת</div>
+        </div>`;
+    } else if(writeMethod === 'type'){
+      body = `
+        <div class="step-title">שלב 4: כתיבה - הקלדה</div>
+        <div class="step-body">הקלידו את המשפט מהזיכרון</div>
+        <div style="text-align:center; margin-bottom:1.5rem;">
+          <input type="text" id="typeInput" dir="rtl" value="${typedValue.replace(/"/g,'&quot;')}" placeholder="הקלידו כאן..." />
+        </div>
+        <div class="parent-row">
+          <button id="checkTyped" class="btn-accent">בדקו</button>
+        </div>`;
+    } else if(writeMethod === 'write'){
+      body = `
+        <div class="step-title">שלב 4: כתיבה - במחברת</div>
+        <div class="step-body">כתבו את המשפט במחברת</div>
+        <div class="parent-row">
+          <button id="doneWriting" class="btn-accent">סיימתי לכתוב</button>
+        </div>`;
+    }
+  } else if(copyStep === 5){
+    if(writeMethod === 'type'){
+      const targetClean = fullText.replace(/[\u0591-\u05C7]/g,'').replace(/\s+/g,'');
+      const typedClean = typedValue.replace(/[\u0591-\u05C7]/g,'').replace(/\s+/g,'');
+      const correct = targetClean === typedClean;
+      body = `
+        <div class="step-title">שלב 5: בדיקה</div>
+        <div class="writing-box"><div class="word">${fullText}</div></div>
+        <div class="step-body">${correct ? '✓ נכון מאוד!' : 'יש הבדל קטן - בואו ננסה שוב'}</div>
+        <div class="parent-row">
+          ${correct ? `<button id="nextSentence" class="btn-success">למשפט הבא</button>` : `<button id="retryWrite">לנסות שוב</button>`}
+        </div>`;
+    } else {
+      body = `
+        <div class="step-title">שלב 5: בדיקה</div>
+        <div class="writing-box"><div class="word">${fullText}</div></div>
+        <div class="step-body">אמא, בדקי את המחברת - האם המשפט נכתב נכון?</div>
+        <div class="parent-row">
+          <button id="markCorrect" class="btn-success">נכון - להמשיך</button>
+          <button id="markRetry">יש טעות - ננסה שוב</button>
+        </div>`;
+    }
+  }
+
+  app.innerHTML = dots + body;
+
+  const playBtn = document.getElementById('playSent');
+  if(playBtn) playBtn.onclick = ()=> playKey(sentObj.key, fullText, ()=>{});
+  const nextBtn = document.getElementById('nextStep');
+  if(nextBtn) nextBtn.onclick = ()=>{ copyStep++; renderApp(); };
+  const chooseType = document.getElementById('chooseType');
+  if(chooseType) chooseType.onclick = ()=>{ writeMethod='type'; typedValue=''; renderApp(); };
+  const chooseWrite = document.getElementById('chooseWrite');
+  if(chooseWrite) chooseWrite.onclick = ()=>{ writeMethod='write'; renderApp(); };
+  const typeInput = document.getElementById('typeInput');
+  if(typeInput) typeInput.oninput = (e)=>{ typedValue = e.target.value; };
+  const checkTyped = document.getElementById('checkTyped');
+  if(checkTyped) checkTyped.onclick = ()=>{
+    const targetClean = fullText.replace(/[\u0591-\u05C7]/g,'').replace(/\s+/g,'');
+    const typedClean = typedValue.replace(/[\u0591-\u05C7]/g,'').replace(/\s+/g,'');
+    const correct = targetClean === typedClean;
+    copyStep=5; renderApp();
+    if(correct) playCorrectSound(); else playWrongSound();
+  };
+  const doneWriting = document.getElementById('doneWriting');
+  if(doneWriting) doneWriting.onclick = ()=>{ copyStep=5; renderApp(); };
+  const nextSentence = document.getElementById('nextSentence');
+  if(nextSentence) nextSentence.onclick = ()=> advanceCopySentence();
+  const retryWrite = document.getElementById('retryWrite');
+  if(retryWrite) retryWrite.onclick = ()=>{ copyStep=4; typedValue=''; renderApp(); };
+  const markCorrect = document.getElementById('markCorrect');
+  if(markCorrect) markCorrect.onclick = ()=>{ playCorrectSound(); advanceCopySentence(); };
+  const markRetry = document.getElementById('markRetry');
+  if(markRetry) markRetry.onclick = ()=>{ playWrongSound(); copyStep=4; writeMethod='write'; renderApp(); };
+}
+
+
+
+function advanceCopySentence(){
+  copyIdx++;
+  copyStep = 1;
+  writeMethod = null;
+  typedValue = '';
+  if(copyIdx >= sentences.length){
+    status = 'copyingDone';
+    renderApp();
+    playKey('msg_copy_done', 'כל הכבוד! סיימת את כל השיעור', ()=>{});
+  } else {
+    renderApp();
+  }
+}
+
+async function startCopyPhase(){
+  status = 'copying';
+  copyIdx = 0; copyStep = 1; writeMethod = null; typedValue = '';
+  renderApp();
+  await new Promise(resolve=> playKey('msg_instr_copy', 'עכשיו נעתיק את המשפטים. תקראו, תסתכלו היטב, תכסו, תכתבו ותבדקו', resolve));
+  renderApp();
+}
+
 
 async function processWord(sentObj, idx){
   const wordId = sentObj.ids[idx];
@@ -527,9 +704,7 @@ async function runLesson(){
     sentIdx = s;
     await processSentence(sentences[s]);
   }
-  status = 'done';
-  renderApp();
-  playKey('msg_write_done', 'כל הכבוד! קראת את כל המשפטים לבד');
+  await startCopyPhase();
 }
 
 loadAudioUrls();
