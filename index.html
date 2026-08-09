@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>שיעור כתיבה וקריאה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FBF9F6;
+    --surface: #FFFFFF;
+    --surface-2: #F1EEE8;
+    --border: #E2DDD3;
+    --text: #2E2A24;
+    --text-muted: #7A7367;
+    --accent: #3E6259;
+    --accent-bg: #E7EFEC;
+    --success: #2F7D5A;
+    --success-bg: #E5F3EB;
+    --danger: #B54B3D;
+    --danger-bg: #FBEAE6;
+  }
+  *{ box-sizing: border-box; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    min-height:100vh;
+    padding: 0;
+  }
+  .wrap{ max-width: 780px; width:100%; margin:0 auto; min-height:100vh; display:flex; flex-direction:column; padding: 2.5rem 1.5rem 3rem; }
+  h1{ font-size: 22px; text-align:center; margin: 0 0 2rem; font-weight:700; letter-spacing:0.2px; }
+  button{
+    font-family:inherit;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    cursor:pointer;
+    padding: 10px 18px;
+    font-size:15px;
+  }
+  button:hover{ background: var(--surface-2); }
+  button:disabled{ opacity:0.5; cursor:default; }
+  .btn-accent{ border: 2px solid var(--accent); color: var(--accent); font-weight:600; }
+  .btn-success{ border: 2px solid var(--success); color: var(--success); font-weight:600; }
+  input[type=text]{
+    font-family:inherit;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 22px;
+    text-align:center;
+  }
+  #settingsPanel{ display:none; background: var(--surface); border:1px solid var(--border); border-radius:12px; padding:1rem; margin-bottom:1.5rem; }
+  #progress{ text-align:center; font-size:14px; color: var(--text-muted); margin-bottom:0.5rem; letter-spacing:0.3px; }
+  .main-area{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+  .writing-box{
+    padding: 1rem 1rem 0;
+    margin-bottom:1.5rem;
+    min-height:140px;
+    text-align:center;
+  }
+  .writing-box .word{
+    font-size:64px;
+    letter-spacing:1.5px;
+    min-height:76px;
+    display:inline-block;
+    border-bottom: 2px solid var(--border);
+    padding: 0 1.5rem 1rem;
+  }
+  .status-line{ min-height:26px; margin-bottom:1.5rem; text-align:center; font-size:16px; color: var(--text-muted); }
+  .status-listening{ color: var(--accent); }
+  .status-success{ color: var(--success); font-size:18px; }
+  .controls-row{ display:flex; justify-content:center; gap:8px; margin-bottom:1.5rem; flex-wrap:wrap; }
+  .controls-row button{ font-size:13px; padding:6px 12px; }
+  .active-speed{ border:2px solid var(--accent); color: var(--accent); }
+  .parent-row{ display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
+  .note{ font-size:13px; color: var(--text-muted); text-align:center; margin-top:1rem; }
+  .step-dots{ display:flex; justify-content:center; gap:10px; margin-bottom:2rem; }
+  .step-dot{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; border:1px solid var(--border); color: var(--text-muted); background: var(--surface); }
+  .step-dot.active{ border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+  .step-dot.done{ border-color: var(--success); color:#fff; background: var(--success); }
+  .step-title{ text-align:center; font-size:18px; font-weight:600; margin-bottom:0.75rem; }
+  .step-body{ text-align:center; font-size:15px; color: var(--text-muted); margin-bottom:1.5rem; }
+  .covered-card{ background: var(--surface-2); border:2px dashed var(--border); border-radius:16px; padding: 2.5rem 1rem; text-align:center; font-size:22px; color: var(--text-muted); margin-bottom:1.5rem; }
+  .choice-row{ display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-bottom:1rem; }
+  .choice-card{ background: var(--surface); border:1px solid var(--border); border-radius:14px; padding: 1.5rem 2rem; cursor:pointer; font-size:16px; font-weight:500; min-width:160px; }
+  .choice-card:hover{ background: var(--surface-2); }
+  .sentence-row{ display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:2rem; direction:rtl; }
+  .plain-word{ font-size:30px; padding:8px 4px; color: var(--text); }
+  .word-card-wrap{ perspective:700px; display:inline-block; }
+  .word-card-inner{ position:relative; min-width:100px; height:66px; transition: transform 0.5s; transform-style:preserve-3d; }
+  .word-card-inner.flipped{ transform: rotateY(180deg); }
+  .word-card-face{ position:absolute; top:0; right:0; left:0; bottom:0; backface-visibility:hidden; display:flex; align-items:center; justify-content:center; border-radius:12px; padding:0 16px; }
+  .word-card-face.front{ background:#5EC1CE; color:#0A2E33; font-size:32px; font-weight:700; border-bottom:4px solid #2E9BAA; }
+  .word-card-face.back{ transform: rotateY(180deg); background:#2E9BAA; color:#fff; font-size:26px; }
+  .completed-line{ font-size:26px; text-align:center; color: var(--text-muted); margin-bottom:0.6rem; direction:rtl; }
+  .notebook-lines{ margin-bottom:1rem; }
+  .celebrate-wrap{ text-align:center; padding: 2rem 1rem; }
+  .celebrate-check{ font-size:80px; color: var(--success); margin-bottom:1rem; }
+  .celebrate-title{ font-size:26px; font-weight:700; margin-bottom:0.5rem; }
+  .struggled-word{ text-decoration: underline wavy #E8735C; text-decoration-thickness: 2px; }
+  @keyframes confettiFall{
+    from{ transform: translateY(-20px) rotate(0deg); opacity:1; }
+    to{ transform: translateY(110vh) rotate(720deg); opacity:0.9; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>שיעור כתיבה וקריאה משותפת</h1>
+  <div style="text-align:left; margin-bottom:0.5rem;">
+    <button id="settingsToggle">⚙ הגדרות הקלטות</button>
+  </div>
+  <div id="settingsPanel"></div>
+  <div id="progress"></div>
+  <div id="app" class="main-area"></div>
+</div>
+
+<script>
+const words = [
+  {id:'aba', text:'אַבָּא'},
+  {id:'ima', text:'אִמָּא'},
+  {id:'bait', text:'בַּיִת'},
+  {id:'yosi', text:'יוֹסִי'},
+  {id:'shel', text:'שֶׁל'},
+  {id:'rami', text:'רָמִי'},
+  {id:'gina', text:'גִּנָּה'}
+];
+
+const DEFAULT_SENTENCES = [
+  {key:'sent1', ids:['ima','shel','yosi']},
+  {key:'sent2', ids:['bait','shel','rami']},
+  {key:'sent3', ids:['rami','shel','aba']},
+  {key:'sent4', ids:['gina','shel','yosi']},
+  {key:'sent5', ids:['rami','shel','yosi']},
+  {key:'sent6', ids:['yosi','shel','ima']},
+  {key:'sent7', ids:['aba','shel','rami']}
+];
+
+let cameFromLesson1 = false;
+let sentences = DEFAULT_SENTENCES;
+try{
+  const handoff = localStorage.getItem('handoff-sentences');
+  if(handoff){
+    const idsLists = JSON.parse(handoff);
+    sentences = idsLists.map((ids,i)=> ({ key:'sent'+(i+1), ids }));
+    cameFromLesson1 = true;
+    localStorage.removeItem('handoff-sentences');
+  }
+}catch(e){}
+
+const SYLLABLE_COUNTS = {
+  aba:[1,2],
+  ima:[1,2],
+  bait:[1,1,1],
+  yosi:[2,2],
+  shel:[1,1],
+  rami:[1,2],
+  gina:[1,2]
+};
+
+const AUDIO_MANIFEST = [
+  {key:'word_aba', label:'המילה: אַבָּא'},
+  {key:'word_ima', label:'המילה: אִמָּא'},
+  {key:'word_bait', label:'המילה: בַּיִת'},
+  {key:'word_yosi', label:'המילה: יוֹסִי'},
+  {key:'word_shel', label:'המילה: שֶׁל'},
+  {key:'word_rami', label:'המילה: רָמִי'},
+  {key:'word_gina', label:'המילה: גִּנָּה'},
+  {key:'msg_instr_write', label:'הוראת פתיחה לקריאה: "עכשיו נכתוב ונקרא ביחד. תקראו כל מילה כשהיא נכתבת"'},
+  {key:'msg_write_done', label:'עידוד סיום קריאה: "כל הכבוד! קראת את כל המשפטים לבד"'},
+  {key:'msg_instr_copy', label:'הוראת פתיחה להעתקה: "איזה יופי! סיימנו לקרוא. עכשיו נעבור לכתיבה - אתה מוכן עם העיפרון? נעתיק את המילה בשלמותה. בואו נתחיל."'},
+  {key:'step_instr_1', label:'שלב 1: "קראו את המילה בקול"'},
+  {key:'step_instr_2', label:'שלב 2: "צלמו אותה"'},
+  {key:'step_instr_3', label:'שלב 3: "עכשיו נכסה את המילה - נסו לראות אותה בדמיון"'},
+  {key:'step_instr_4', label:'שלב 4: "כתבו את המילה"'},
+  {key:'step_instr_5', label:'שלב 5: "עכשיו נבדוק אם כתבתם נכון"'},
+  {key:'msg_copy_done', label:'עידוד סיום מלא (הכל נכון): "כל הכבוד! סיימת את כל השיעור"'},
+  {key:'msg_copy_encourage', label:'עידוד סיום עם קשיים: "השתדלת יפה! בואו ננסה שוב כדי להצליח לכתוב את כל המשפטים נכון"'}
+];
+
+let audioUrls = {};
+let voices = [];
+let chosenVoice = null;
+let actx = null;
+const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+
+let sentIdx = 0;
+let currentWordIndex = 0;
+let currentReveal = '';
+let builtWords = [];
+let status = 'notStarted';
+let parentDecisionResolve = null;
+let pace = 1100;
+let revealPaused = false;
+let skipRequested = false;
+let currentSyllableText = '';
+let copySentIdx = 0;
+let copyWordIdx = 0;
+let copyStep = 1;
+let writeMethod = null;
+let typedValue = '';
+let sentenceStatus = [];
+let lastRunClean = true;
+let wordAttempts = 0;
+let currentSentenceResults = [];
+let lastStepAudioKey = '';
+let celebrationPlayed = false;
+
+const STEP_INSTRUCTIONS = {
+  1: {key:'step_instr_1', text:'קראו את המילה בקול'},
+  2: {key:'step_instr_2', text:'צלמו אותה'},
+  3: {key:'step_instr_3', text:'עכשיו נכסה את המילה, נסו לראות אותה בדמיון'},
+  4: {key:'step_instr_4', text:'כתבו את המילה'},
+  5: {key:'step_instr_5', text:'עכשיו נבדוק אם כתבתם נכון'}
+};
+
+function getCtx(){
+  if(!actx){ actx = new (window.AudioContext || window.webkitAudioContext)(); }
+  if(actx.state === 'suspended'){ actx.resume(); }
+  return actx;
+}
+function playCorrectSound(){
+  const ctx = getCtx(); const now = ctx.currentTime;
+  [523.25, 783.99].forEach((freq, i)=>{
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type='sine'; osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.0001, now+i*0.11);
+    gain.gain.exponentialRampToValueAtTime(0.25, now+i*0.11+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now+i*0.11+0.28);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now+i*0.11); osc.stop(now+i*0.11+0.3);
+  });
+}
+function playWrongSound(){
+  const ctx = getCtx(); const now = ctx.currentTime;
+  [196, 146.83].forEach((freq, i)=>{
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type='square'; osc.frequency.value=freq;
+    const start = now+i*0.16;
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.35, start+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start+0.32);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(start); osc.stop(start+0.34);
+  });
+}
+function playReadySound(){
+  const ctx = getCtx(); const now = ctx.currentTime;
+  const osc = ctx.createOscillator(); const gain = ctx.createGain();
+  osc.type='sine'; osc.frequency.value=660;
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(0.15, now+0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now+0.18);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now); osc.stop(now+0.2);
+}
+function launchConfetti(){
+  const container = document.createElement('div');
+  container.style.position='fixed'; container.style.inset='0'; container.style.pointerEvents='none'; container.style.overflow='hidden'; container.style.zIndex='9999';
+  document.body.appendChild(container);
+  const colors = ['#5EC1CE','#2E9BAA','#F4C95D','#E8735C','#8CC084'];
+  for(let i=0;i<44;i++){
+    const piece = document.createElement('div');
+    const size = 6+Math.random()*7;
+    piece.style.position='absolute';
+    piece.style.width=size+'px'; piece.style.height=(size*0.4)+'px';
+    piece.style.background = colors[Math.floor(Math.random()*colors.length)];
+    piece.style.left = Math.random()*100+'%';
+    piece.style.top = '-20px';
+    piece.style.opacity = '0.9';
+    piece.style.borderRadius='2px';
+    piece.style.animation = `confettiFall ${2.4+Math.random()*1.6}s linear forwards`;
+    piece.style.animationDelay = (Math.random()*0.6)+'s';
+    container.appendChild(piece);
+  }
+  setTimeout(()=> container.remove(), 4500);
+}
+function playFinaleSound(){
+  const ctx = getCtx(); const now = ctx.currentTime;
+  [523.25,659.25,783.99,1046.5,1318.5].forEach((freq,i)=>{
+    const osc=ctx.createOscillator(); const gain=ctx.createGain();
+    osc.type='triangle'; osc.frequency.value=freq;
+    const start=now+i*0.12;
+    gain.gain.setValueAtTime(0.0001,start);
+    gain.gain.exponentialRampToValueAtTime(0.28,start+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001,start+0.45);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(start); osc.stop(start+0.47);
+  });
+  const chordStart = now+5*0.12+0.1;
+  [659.25,783.99,1046.5,1318.5].forEach(freq=>{
+    const osc=ctx.createOscillator(); const gain=ctx.createGain();
+    osc.type='triangle'; osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.0001,chordStart);
+    gain.gain.exponentialRampToValueAtTime(0.22,chordStart+0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001,chordStart+0.9);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(chordStart); osc.stop(chordStart+0.92);
+  });
+}
+function playVictorySound(){
+  const ctx = getCtx(); const now = ctx.currentTime;
+  [523.25,659.25,783.99,1046.5].forEach((freq,i)=>{
+    const osc=ctx.createOscillator(); const gain=ctx.createGain();
+    osc.type='triangle'; osc.frequency.value=freq;
+    const start=now+i*0.1;
+    gain.gain.setValueAtTime(0.0001,start);
+    gain.gain.exponentialRampToValueAtTime(0.28,start+0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001,start+0.4);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(start); osc.stop(start+0.42);
+  });
+  const chordStart = now+4*0.1+0.05;
+  [783.99,1046.5,1318.5].forEach(freq=>{
+    const osc=ctx.createOscillator(); const gain=ctx.createGain();
+    osc.type='triangle'; osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0.0001,chordStart);
+    gain.gain.exponentialRampToValueAtTime(0.22,chordStart+0.03);
+    gain.gain.exponentialRampToValueAtTime(0.0001,chordStart+0.6);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(chordStart); osc.stop(chordStart+0.62);
+  });
+}
+
+function loadVoices(){
+  voices = speechSynthesis.getVoices();
+  chosenVoice = voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('he')) || null;
+}
+loadVoices();
+if(typeof speechSynthesis !== 'undefined'){ speechSynthesis.onvoiceschanged = loadVoices; }
+
+let currentAudioEl = null;
+function stopAllAudio(){
+  try{ speechSynthesis.cancel(); }catch(e){}
+  if(currentAudioEl){ try{ currentAudioEl.pause(); }catch(e){} currentAudioEl = null; }
+}
+function speakFallback(text, onend){
+  stopAllAudio();
+  try{
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang='he-IL'; u.rate=0.78; u.pitch=1.05;
+    if(chosenVoice) u.voice = chosenVoice;
+    if(onend) u.onend = onend;
+    speechSynthesis.speak(u);
+  }catch(e){ if(onend) onend(); }
+}
+function playKey(key, fallbackText, onend){
+  stopAllAudio();
+  const url = audioUrls[key];
+  if(url){
+    const audio = new Audio(url);
+    currentAudioEl = audio;
+    audio.onended = ()=>{ if(currentAudioEl===audio) currentAudioEl=null; if(onend) onend(); };
+    audio.onerror = ()=> speakFallback(fallbackText, onend);
+    audio.play().catch(()=> speakFallback(fallbackText, onend));
+  } else {
+    speakFallback(fallbackText, onend);
+  }
+}
+function wordText(id){ return words.find(w=>w.id===id).text; }
+
+function segmentWord(text){
+  if(typeof Intl !== 'undefined' && Intl.Segmenter){
+    try{
+      const seg = new Intl.Segmenter('he', {granularity:'grapheme'});
+      return Array.from(seg.segment(text), s=>s.segment);
+    }catch(e){}
+  }
+  return Array.from(text);
+}
+
+function stripNiqud(t){ return t.replace(/[\u0591-\u05C7]/g,'').trim(); }
+
+function levenshtein(a,b){
+  const m=a.length, n=b.length;
+  const dp = Array.from({length:m+1},()=>new Array(n+1).fill(0));
+  for(let i=0;i<=m;i++) dp[i][0]=i;
+  for(let j=0;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++){
+    for(let j=1;j<=n;j++){
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+    }
+  }
+  return dp[m][n];
+}
+
+let sharedRecognition = null;
+let debugLog = '';
+function logDebug(msg){
+  const time = new Date().toLocaleTimeString('he-IL');
+  debugLog = `[${time}] ${msg}\n` + debugLog;
+  const el = document.getElementById('debugBox');
+  if(el) el.textContent = debugLog;
+}
+
+function createWordRecognizer(targetText){
+  if(!SpeechRecognitionCtor) return null;
+  let rec;
+  try{
+    rec = new SpeechRecognitionCtor();
+    rec.lang = 'he-IL';
+    rec.continuous = true;
+    rec.interimResults = false;
+    rec.maxAlternatives = 3;
+  }catch(e){ logDebug('שגיאה ביצירת אובייקט זיהוי: ' + e.message); return null; }
+  const pieces = [];
+  let resolved = false;
+  let resolveFn;
+  const donePromise = new Promise(resolve=>{ resolveFn = resolve; });
+  let readyResolved = false;
+  let readyResolveFn;
+  const readyPromise = new Promise(resolve=>{ readyResolveFn = resolve; });
+  const readyFallback = setTimeout(()=>{ if(!readyResolved){ readyResolved=true; readyResolveFn(false); } }, 1500);
+
+  rec.onstart = ()=>{
+    logDebug('המיקרופון פעיל ומאזין ברציפות (למילה: ' + targetText + ')');
+    if(!readyResolved){ readyResolved=true; clearTimeout(readyFallback); readyResolveFn(true); }
+  };
+  rec.onresult = (e)=>{
+    for(let i=e.resultIndex; i<e.results.length; i++){
+      if(e.results[i].isFinal){
+        const alt = e.results[i][0].transcript;
+        pieces.push(alt);
+        logDebug('קטע שזוהה: "' + alt + '"');
+      }
+    }
+  };
+  rec.onerror = (e)=> logDebug('שגיאת זיהוי: ' + e.error);
+  rec.onend = ()=>{
+    if(resolved) return;
+    resolved = true;
+    const heard = pieces.join(' ');
+    const targetClean = stripNiqud(targetText).replace(/\s+/g,'');
+    const heardClean = stripNiqud(heard).replace(/\s+/g,'');
+    let match = false;
+    if(heardClean){
+      match = heardClean.includes(targetClean) || targetClean.includes(heardClean) || levenshtein(heardClean, targetClean) <= 1;
+    }
+    logDebug('סה"כ נשמע: "' + heard + '" | התאמה: ' + (match ? 'כן' : 'לא'));
+    resolveFn(pieces.length ? match : null);
+  };
+  try{ rec.start(); }catch(e){ logDebug('שגיאה בהפעלת המיקרופון: ' + e.message); resolveFn(null); if(!readyResolved){ readyResolved=true; clearTimeout(readyFallback); readyResolveFn(false); } }
+
+  return { stop: ()=>{ try{ rec.stop(); }catch(e){} }, donePromise, readyPromise };
+}
+function delay(ms){ return new Promise(res=>setTimeout(res, ms)); }
+function waitForParentDecision(){ return new Promise(resolve=>{ parentDecisionResolve = resolve; renderApp(); }); }
+
+function loadAudioUrls(){
+  try{
+    const raw = localStorage.getItem('lesson2-writing-audio-urls');
+    if(raw){ audioUrls = JSON.parse(raw); }
+  }catch(e){ audioUrls = {}; }
+  renderSettingsPanel();
+}
+function saveAudioUrls(){
+  try{ localStorage.setItem('lesson2-writing-audio-urls', JSON.stringify(audioUrls)); }catch(e){}
+}
+function renderSettingsPanel(){
+  const panel = document.getElementById('settingsPanel');
+  panel.innerHTML = `
+    <div style="font-size:13px; color:var(--text-muted); margin-bottom:0.75rem;">הדביקו כאן קישור ציבורי (לדוגמה מ-Google Drive) לכל הקלטה. עד שיוזן קישור, תישמע השמעה זמנית בקול מחשב. הקישורים נשמרים בדפדפן הזה בלבד.</div>
+    ${AUDIO_MANIFEST.map(m=>`
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+        <span style="font-size:13px; width:280px; flex-shrink:0;">${m.label}</span>
+        <input type="text" data-key="${m.key}" value="${audioUrls[m.key] ? audioUrls[m.key].replace(/"/g,'&quot;') : ''}" placeholder="קישור לקובץ האודיו" style="flex:1;" />
+      </div>
+    `).join('')}
+    <button id="saveAudio" class="btn-accent">שמירת קישורים</button>
+    <span id="savedMsg" style="font-size:13px; color:var(--success); margin-right:10px;"></span>
+  `;
+  document.getElementById('saveAudio').onclick = ()=>{
+    panel.querySelectorAll('input[data-key]').forEach(inp=>{ audioUrls[inp.dataset.key] = inp.value.trim(); });
+    saveAudioUrls();
+    document.getElementById('savedMsg').textContent = 'נשמר';
+    setTimeout(()=>{ const m=document.getElementById('savedMsg'); if(m) m.textContent=''; }, 2000);
+  };
+}
+document.getElementById('settingsToggle').onclick = ()=>{
+  const panel = document.getElementById('settingsPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+};
+
+function speedControls(){
+  return `<div class="controls-row">
+    <button data-speed="1600" class="speedBtn ${pace===1600?'active-speed':''}">איטי</button>
+    <button data-speed="1100" class="speedBtn ${pace===1100?'active-speed':''}">בינוני</button>
+    <button data-speed="650" class="speedBtn ${pace===650?'active-speed':''}">מהיר</button>
+    <button id="pauseBtn">${revealPaused ? 'המשך' : 'עצירה'}</button>
+    <button id="skipBtn">הציגו את כל המילה</button>
+  </div>`;
+}
+function wireSpeedControls(){
+  document.querySelectorAll('.speedBtn').forEach(b=>{
+    b.onclick = ()=>{ pace = parseInt(b.dataset.speed,10); renderApp(); };
+  });
+  const pb = document.getElementById('pauseBtn');
+  if(pb) pb.onclick = ()=>{ revealPaused = !revealPaused; renderApp(); };
+  const sb = document.getElementById('skipBtn');
+  if(sb) sb.onclick = ()=>{ skipRequested = true; };
+}
+
+function renderApp(){
+  const app = document.getElementById('app');
+  const progEl = document.getElementById('progress');
+
+  if(status === 'copying'){
+    renderCopyPhase();
+    return;
+  }
+
+  progEl.textContent = (status==='notStarted' || status==='copyingDone') ? '' : `משפט ${sentIdx+1} מתוך ${sentences.length} - קריאה`;
+
+  if(status === 'notStarted'){
+    if(cameFromLesson1){
+      app.innerHTML = `
+        <div style="text-align:center; padding:2rem 1rem;">
+          <div style="font-size:16px; color:var(--text-muted); margin-bottom:1.5rem;">כל הכבוד על השלמת שיעור 1! עכשיו נכתוב את אותם המשפטים במחברת.</div>
+          <button id="startBtn" class="btn-accent" style="font-size:16px; padding:12px 24px;">התחילו לכתוב</button>
+        </div>`;
+      document.getElementById('startBtn').onclick = ()=>{ startCopyPhase(); };
+      return;
+    }
+    app.innerHTML = `
+      <div style="text-align:center; padding:2rem 1rem;">
+        <div style="font-size:16px; color:var(--text-muted); margin-bottom:1.5rem;">בשלב הזה נכתוב מילים על המסך, והילד/ה יקרא/תקרא אותן בקול תוך כדי הכתיבה.</div>
+        <button id="startBtn" class="btn-accent" style="font-size:16px; padding:12px 24px;">התחילו את השיעור</button>
+        ${!SpeechRecognitionCtor ? `<div class="note">שימו לב: הדפדפן הזה לא תומך בזיהוי דיבור אוטומטי - כל מילה תדרוש אישור הורה.</div>` : `<div class="note">הדפדפן יבקש הרשאת גישה למיקרופון - יש לאשר כדי שהזיהוי האוטומטי יעבוד.</div>`}
+      </div>`;
+    document.getElementById('startBtn').onclick = ()=>{ runLesson(); };
+    return;
+  }
+
+  if(status === 'copyingDone'){
+    if(lastRunClean){
+      app.innerHTML = `
+        <div class="celebrate-wrap">
+          <div class="celebrate-check">✔</div>
+          <div class="celebrate-title">כל הכבוד! סיימת את כל השיעור</div>
+          <div class="step-body">קראת, כתבת והעתקת את כל המשפטים לבד - הכל נכון!</div>
+          <button id="restart" class="btn-accent">התחל מחדש</button>
+        </div>`;
+      if(!celebrationPlayed){
+        celebrationPlayed = true;
+        launchConfetti();
+        playFinaleSound();
+      }
+    } else {
+      app.innerHTML = `
+        <div class="celebrate-wrap">
+          <div class="celebrate-check" style="color:var(--accent);">💪</div>
+          <div class="celebrate-title">השתדלת יפה!</div>
+          <div class="step-body">היו כמה מילים שדרשו יותר מאמץ (מסומנות למעלה). בואו ננסה שוב כדי להצליח לכתוב את כל המשפטים נכון.</div>
+          <button id="restart" class="btn-accent">ננסה שוב</button>
+        </div>`;
+      if(!celebrationPlayed){
+        celebrationPlayed = true;
+        playCorrectSound();
+      }
+    }
+    document.getElementById('restart').onclick = ()=>{
+      sentIdx=0; currentWordIndex=0; builtWords=[]; currentReveal='';
+      copySentIdx=0; copyWordIdx=0; copyStep=1; writeMethod=null; typedValue='';
+      sentenceStatus = []; lastRunClean = true;
+      celebrationPlayed = false;
+      status='notStarted'; renderApp();
+    };
+    return;
+  }
+
+  const writtenSoFar = builtWords.join(' ') + (builtWords.length>0 ? ' ' : '') + currentReveal;
+
+  let statusLine = '';
+  if(status==='instruction') statusLine = `<div class="status-line">מקשיבים להוראה...</div>`;
+  else if(status==='preparing') statusLine = `<div class="status-line">מכינים את המיקרופון...</div>`;
+  else if(status==='writing') statusLine = `<div class="status-line">קראו בקול תוך כדי הכתיבה</div>`;
+  else if(status==='listening') statusLine = `<div class="status-line status-listening">🎙 מקשיב...</div>`;
+  else if(status==='sentenceDone') statusLine = `<div class="status-line status-success">מצוין! המשפט נכון</div>`;
+
+  const showSpeedControls = ['writing','listening','paused'].includes(status);
+
+  app.innerHTML = `
+    <div class="writing-box"><div class="word">${writtenSoFar || '&nbsp;'}</div></div>
+    ${statusLine}
+    ${showSpeedControls ? speedControls() : ''}
+    ${status==='paused' ? `
+      <div class="parent-row">
+        <button id="demoBtn">🔊 השמיעו איך קוראים</button>
+        <button id="continueBtn" class="btn-success">קרא נכון - להמשיך</button>
+        <button id="retryBtn">בואו ננסה שוב</button>
+      </div>
+    ` : ''}
+  `;
+
+  if(showSpeedControls) wireSpeedControls();
+
+  if(status==='paused'){
+    const sentObjCur = sentences[sentIdx];
+    const curWordId = sentObjCur.ids[currentWordIndex];
+    document.getElementById('demoBtn').onclick = ()=> playKey('word_'+curWordId, wordText(curWordId));
+    document.getElementById('continueBtn').onclick = ()=>{ if(parentDecisionResolve) parentDecisionResolve('continue'); };
+    document.getElementById('retryBtn').onclick = ()=>{ if(parentDecisionResolve) parentDecisionResolve('retry'); };
+  }
+}
+
+function renderCopyPhase(){
+  const app = document.getElementById('app');
+  const progEl = document.getElementById('progress');
+  const atFirst = copySentIdx === 0;
+  const atLast = copySentIdx === sentences.length - 1;
+  progEl.innerHTML = `<div style="display:flex; align-items:center; justify-content:center; gap:14px;">
+    <button id="prevSentBtn" ${atFirst?'disabled':''} style="font-size:13px; padding:4px 10px;">◀ הקודם</button>
+    <span>משפט ${copySentIdx+1} מתוך ${sentences.length} - העתקה</span>
+    <button id="nextSentBtn" ${atLast?'disabled':''} style="font-size:13px; padding:4px 10px;">הבא ▶</button>
+  </div>`;
+  const prevBtn = document.getElementById('prevSentBtn');
+  if(prevBtn) prevBtn.onclick = ()=>{ if(copySentIdx>0){ jumpToSentence(copySentIdx-1); } };
+  const nextBtnNav = document.getElementById('nextSentBtn');
+  if(nextBtnNav) nextBtnNav.onclick = ()=>{ if(copySentIdx<sentences.length-1){ jumpToSentence(copySentIdx+1); } };
+
+  const sentObj = sentences[copySentIdx];
+  const activeWordId = sentObj.ids[copyWordIdx];
+  const activeWordText = wordText(activeWordId);
+  const stepLabels = ['קריאה','צילום','כיסוי','כתיבה','בדיקה'];
+  const isBack = (copyStep === 3 || copyStep === 4);
+
+  const notebook = sentenceStatus.some(Boolean) ? `<div class="notebook-lines">${sentenceStatus.map(s=>{
+    if(!s) return '';
+    const wordsHtml = s.words.map(w=> w.struggled ? `<span class="struggled-word">${w.text}</span>` : w.text).join(' ');
+    return `<div class="completed-line">${wordsHtml} ✅</div>`;
+  }).join('')}</div>` : '';
+
+  const sentenceRow = `<div class="sentence-row">${sentObj.ids.map((wid,i)=>{
+    if(i === copyWordIdx){
+      return `<div class="word-card-wrap"><div class="word-card-inner ${isBack ? 'flipped' : ''}">
+        <div class="word-card-face front">${activeWordText}</div>
+        <div class="word-card-face back">🙈</div>
+      </div></div>`;
+    }
+    const done = currentSentenceResults[i];
+    const label = wordText(wid);
+    return `<span class="plain-word">${done && done.struggled ? `<span class="struggled-word">${label}</span>` : label}</span>`;
+  }).join('')}</div>`;
+
+  const dots = `<div class="step-dots">${stepLabels.map((l,i)=>{
+    const n = i+1;
+    const cls = n<copyStep ? 'done' : (n===copyStep ? 'active' : '');
+    return `<div class="step-dot ${cls}" title="${l}">${n}</div>`;
+  }).join('')}</div>`;
+
+  let body = '';
+
+  if(copyStep === 1){
+    body = `
+      <div class="step-title">שלב 1: קריאת המילה</div>
+      <div class="step-body">קראו את המילה המודגשת בקול</div>
+      <div class="parent-row">
+        <button id="playWord">🔊 השמיעו</button>
+        <button id="nextStep" class="btn-accent">קראתי - להמשיך</button>
+      </div>`;
+  } else if(copyStep === 2){
+    body = `
+      <div class="step-title">שלב 2: צילום המילה</div>
+      <div class="step-body">הסתכלו היטב על המילה ונסו לזכור בדיוק איך היא נראית</div>
+      <div class="parent-row">
+        <button id="nextStep" class="btn-accent">אני מוכן/ה להמשיך</button>
+      </div>`;
+  } else if(copyStep === 3){
+    body = `
+      <div class="step-title">שלב 3: כיסוי</div>
+      <div class="step-body">הכרטיס התהפך - נסו לראות בדמיון איך המילה כתובה, כאילו היא עדיין מול העיניים</div>
+      <div class="parent-row">
+        <button id="nextStep" class="btn-accent">המשך לכתיבה</button>
+      </div>`;
+  } else if(copyStep === 4){
+    if(!writeMethod){
+      body = `
+        <div class="step-title">שלב 4: כתיבה</div>
+        <div class="step-body">איך תרצו לכתוב את המילה? (ניסיון ${wordAttempts+1} מתוך 2)</div>
+        <div class="choice-row">
+          <div class="choice-card" id="chooseType">⌨️<br>הקלדה במחשב</div>
+          <div class="choice-card" id="chooseWrite">✏️<br>כתיבה במחברת</div>
+        </div>`;
+    } else if(writeMethod === 'type'){
+      body = `
+        <div class="step-title">שלב 4: כתיבה - הקלדה</div>
+        <div class="step-body">הקלידו את המילה מהזיכרון (ניסיון ${wordAttempts+1} מתוך 2)</div>
+        <div style="text-align:center; margin-bottom:1.5rem;">
+          <input type="text" id="typeInput" dir="rtl" value="${typedValue.replace(/"/g,'&quot;')}" placeholder="הקלידו כאן..." />
+        </div>
+        <div class="parent-row">
+          <button id="checkTyped" class="btn-accent">בדקו</button>
+        </div>`;
+    } else if(writeMethod === 'write'){
+      body = `
+        <div class="step-title">שלב 4: כתיבה - במחברת</div>
+        <div class="step-body">כתבו את המילה במחברת (ניסיון ${wordAttempts+1} מתוך 2)</div>
+        <div class="parent-row">
+          <button id="doneWriting" class="btn-accent">סיימתי לכתוב</button>
+        </div>`;
+    }
+  } else if(copyStep === 5){
+    if(writeMethod === 'type'){
+      const targetClean = activeWordText.replace(/[\u0591-\u05C7]/g,'').replace(/\s+/g,'');
+      const typedClean = typedValue.replace(/[\u0591-\u05C7]/g,'').replace(/\s+/g,'');
+      const correct = targetClean === typedClean;
+      body = `
+        <div class="step-title">שלב 5: בדיקה</div>
+        <div class="step-body">${correct ? '✓ נכון מאוד!' : 'יש הבדל קטן - בואו נתקן ונכתוב שוב'}</div>
+        <div class="parent-row">
+          ${correct ? `<button id="nextWord" class="btn-success">למילה הבאה</button>` : `<button id="retryWrite">לתקן ולנסות שוב</button>`}
+        </div>`;
+    } else {
+      body = `
+        <div class="step-title">שלב 5: בדיקה</div>
+        <div class="step-body">אמא, בדקי את המחברת - האם המילה נכתבה נכון?</div>
+        <div class="parent-row">
+          <button id="markCorrect" class="btn-success">נכון - להמשיך</button>
+          <button id="markRetry">יש טעות - ננסה שוב</button>
+        </div>`;
+    }
+  }
+
+  app.innerHTML = notebook + sentenceRow + dots + body;
+
+  const playBtn = document.getElementById('playWord');
+  if(playBtn) playBtn.onclick = ()=> playKey('word_'+activeWordId, activeWordText, ()=>{});
+  const nextBtn = document.getElementById('nextStep');
+  if(nextBtn) nextBtn.onclick = ()=>{ copyStep++; renderApp(); };
+  const chooseType = document.getElementById('chooseType');
+  if(chooseType) chooseType.onclick = ()=>{ writeMethod='type'; typedValue=''; renderApp(); };
+  const chooseWrite = document.getElementById('chooseWrite');
+  if(chooseWrite) chooseWrite.onclick = ()=>{ writeMethod='write'; renderApp(); };
+  const typeInput = document.getElementById('typeInput');
+  if(typeInput) typeInput.oninput = (e)=>{ typedValue = e.target.value; };
+  const checkTyped = document.getElementById('checkTyped');
+  if(checkTyped) checkTyped.onclick = ()=>{
+    const targetClean = activeWordText.replace(/[\u0591-\u05C7]/g,'').replace(/\s+/g,'');
+    const typedClean = typedValue.replace(/[\u0591-\u05C7]/g,'').replace(/\s+/g,'');
+    const correct = targetClean === typedClean;
+    handleWordAttempt(correct);
+  };
+  const doneWriting = document.getElementById('doneWriting');
+  if(doneWriting) doneWriting.onclick = ()=>{ copyStep=5; renderApp(); };
+  const nextWord = document.getElementById('nextWord');
+  if(nextWord) nextWord.onclick = ()=> finishWord(false);
+  const retryWrite = document.getElementById('retryWrite');
+  if(retryWrite) retryWrite.onclick = ()=>{ copyStep=3; typedValue=''; renderApp(); };
+  const markCorrect = document.getElementById('markCorrect');
+  if(markCorrect) markCorrect.onclick = ()=>{ handleWordAttempt(true); };
+  const markRetry = document.getElementById('markRetry');
+  if(markRetry) markRetry.onclick = ()=>{ handleWordAttempt(false); };
+
+  const stepKey = `${copySentIdx}-${copyWordIdx}-${copyStep}`;
+  if(stepKey !== lastStepAudioKey){
+    lastStepAudioKey = stepKey;
+    const instr = STEP_INSTRUCTIONS[copyStep];
+    if(instr) playKey(instr.key, instr.text, ()=>{});
+  }
+}
+
+function handleWordAttempt(correct){
+  if(correct){
+    playCorrectSound();
+    finishWord(false);
+    return;
+  }
+  wordAttempts++;
+  if(wordAttempts >= 2){
+    playWrongSound();
+    finishWord(true);
+  } else {
+    playWrongSound();
+    copyStep = 1; // go back to reading + photographing the word again, then cover, then retry
+    renderApp();
+  }
+}
+
+function finishWord(struggled){
+  const sentObj = sentences[copySentIdx];
+  currentSentenceResults[copyWordIdx] = { struggled };
+
+  if(copyWordIdx < sentObj.ids.length - 1){
+    copyWordIdx++;
+    copyStep = 1; writeMethod = null; typedValue = ''; wordAttempts = 0;
+    renderApp();
+    return;
+  }
+
+  sentenceStatus[copySentIdx] = {
+    words: sentObj.ids.map((wid,i)=>({ text: wordText(wid), struggled: !!(currentSentenceResults[i] && currentSentenceResults[i].struggled) }))
+  };
+  currentSentenceResults = [];
+  copyWordIdx = 0;
+  copyStep = 1; writeMethod = null; typedValue = ''; wordAttempts = 0;
+
+  // find the next sentence that hasn't actually been completed yet
+  let nextIdx = -1;
+  for(let offset = 1; offset <= sentences.length; offset++){
+    const candidate = (copySentIdx + offset) % sentences.length;
+    if(!sentenceStatus[candidate]){ nextIdx = candidate; break; }
+  }
+
+  if(nextIdx === -1){
+    // every sentence has genuinely been completed at least once
+    lastRunClean = sentenceStatus.every(s => s && s.words.every(w => !w.struggled));
+    status = 'copyingDone';
+    renderApp();
+    if(lastRunClean){
+      playKey('msg_copy_done', 'כל הכבוד! סיימת את כל השיעור', ()=>{});
+    } else {
+      playKey('msg_copy_encourage', 'השתדלת יפה! בואו ננסה שוב כדי להצליח לכתוב את כל המשפטים נכון', ()=>{});
+    }
+  } else {
+    copySentIdx = nextIdx;
+    renderApp();
+  }
+}
+
+function jumpToSentence(newIdx){
+  if(newIdx < 0 || newIdx >= sentences.length) return;
+  stopAllAudio();
+  copySentIdx = newIdx;
+  copyWordIdx = 0;
+  copyStep = 1; writeMethod = null; typedValue = ''; wordAttempts = 0;
+  currentSentenceResults = [];
+  renderApp();
+}
+
+async function startCopyPhase(){
+  status = 'copying';
+  copySentIdx = 0; copyWordIdx = 0; copyStep = 1; writeMethod = null; typedValue = '';
+  sentenceStatus = new Array(sentences.length).fill(null);
+  lastRunClean = true; celebrationPlayed = false;
+  wordAttempts = 0; currentSentenceResults = []; lastStepAudioKey = '';
+  renderApp();
+  await new Promise(resolve=> playKey('msg_instr_copy', 'איזה יופי! סיימנו לקרוא. עכשיו נעבור לכתיבה - אתה מוכן עם העיפרון? נעתיק את המילה בשלמותה. בואו נתחיל', resolve));
+  for(let n=1; n<=5; n++){
+    const instr = STEP_INSTRUCTIONS[n];
+    await new Promise(resolve=> playKey(instr.key, instr.text, resolve));
+    await delay(200);
+  }
+  renderApp();
+}
+
+async function processWord(sentObj, idx){
+  const wordId = sentObj.ids[idx];
+  currentWordIndex = idx;
+  const graphemes = segmentWord(wordText(wordId));
+  const counts = SYLLABLE_COUNTS[wordId] || [graphemes.length];
+  const fullWordText = wordText(wordId);
+
+  while(true){
+    status = 'preparing';
+    skipRequested = false;
+    currentReveal = '';
+    renderApp();
+
+    let recognizer = SpeechRecognitionCtor ? createWordRecognizer(fullWordText) : null;
+    if(recognizer){
+      await recognizer.readyPromise;
+      playReadySound();
+    }
+
+    status = 'writing';
+    renderApp();
+    let consumed = 0;
+    outer:
+    for(let si=0; si<counts.length; si++){
+      const sylCount = counts[si];
+      const syllableGraphemes = graphemes.slice(consumed, consumed+sylCount);
+      for(let g=0; g<syllableGraphemes.length; g++){
+        if(skipRequested) break outer;
+        currentReveal += syllableGraphemes[g];
+        renderApp();
+        await delay(pace);
+        while(revealPaused){ await delay(150); }
+      }
+      consumed += sylCount;
+      if(!skipRequested) await delay(150); // small pause between syllables
+    }
+    currentReveal = fullWordText;
+    status = 'listening';
+    renderApp();
+    let match = null;
+    if(recognizer){
+      await delay(900); // grace period to catch trailing speech after the last syllable
+      recognizer.stop();
+      match = await recognizer.donePromise;
+    }
+    if(match === true){
+      playCorrectSound();
+      break;
+    } else {
+      playWrongSound();
+      status = 'paused';
+      const decision = await waitForParentDecision();
+      if(decision === 'continue'){ break; }
+      // retry: loop repeats and re-reveals the whole word
+    }
+  }
+}
+
+async function processSentence(sentObj){
+  builtWords = [];
+  for(let i=0;i<sentObj.ids.length;i++){
+    await processWord(sentObj, i);
+    builtWords.push(wordText(sentObj.ids[i]));
+    currentReveal = '';
+  }
+  playVictorySound();
+  status = 'sentenceDone';
+  renderApp();
+  await delay(1400);
+}
+
+async function runLesson(){
+  status = 'instruction';
+  renderApp();
+  await new Promise(resolve=> playKey('msg_instr_write', 'עכשיו נכתוב ונקרא ביחד. תקראו כל מילה כשהיא נכתבת', resolve));
+  for(let s=0; s<sentences.length; s++){
+    sentIdx = s;
+    await processSentence(sentences[s]);
+  }
+  await startCopyPhase();
+}
+
+loadAudioUrls();
+renderApp();
+</script>
+</body>
+</html>
